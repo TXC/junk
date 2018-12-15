@@ -34,29 +34,33 @@ class Bitbucket
 
     private function prettyFormat()
     {
-        echo '<!DOCTYPE html>'.PHP_EOL;
-        echo '<html lang="en">'.PHP_EOL;
-        echo '<head><title>Bitbucket API Fetcher</title></head>';
-        echo '<body>'.PHP_EOL;
-        echo '<table>'.PHP_EOL;
-        echo '<thead><tr><th>Filename</th><th>Created</th><th>Size</th></tr><th>Download</th></tr></thead>'.PHP_EOL;
-        echo '<tbody>'.PHP_EOL;
-
+        echo '<html>'.PHP_EOL;
+        echo '<head><title>Index of /</title></head>'.PHP_EOL;
+        echo '<body bgcolor="white">'.PHP_EOL;
+        echo '<h1>Index of /</h1><hr><pre><a href="../">../</a>'.PHP_EOL;
         foreach($this->data as $value) {
-            echo '<tr>'.PHP_EOL;
-            printf(
-                '<td>%s</td><td>%s</td><td>%s</td><td><a href="%s">Link</a> (%d)</td>'.PHP_EOL,
-                $value->name,
-                $this->prettyDate($value->created_on),
-                $this->prettyBytes($value->size),
-                $value->links->self->href,
-                $value->downloads
-            );
-            echo '</tr>'.PHP_EOL;
+            $this->printRow($value);
         }
-        echo '</tbody>'.PHP_EOL;
-        echo '</body>'.PHP_EOL;
+        echo '</pre><hr></body>'.PHP_EOL;
         echo '</html>'.PHP_EOL;
+    }
+//helix/                                             25-Nov-2015 23:03                   -
+//superrepo.kodi.isengard.all-0.7.04.zip             25-Nov-2015 23:03               57027
+
+    private function printRow($value) {
+        echo $this->prettyName($value->name, $value->links->self->href);
+        echo $this->prettyDate($value->created_on);
+        //echo $this->prettyBytes($value->size);
+        echo str_pad($value->size, 20, ' ', STR_PAD_LEFT);
+        echo PHP_EOL;
+    }
+
+    private function prettyName($name, $href)
+    {
+        $padLen = (51 - strlen($name));
+        $toReturn = '<a href="' . $href . '">'.$name.'</a>';
+        $toReturn .= str_repeat(' ', $padLen);
+        return $toReturn;
     }
 
     private function prettyBytes($bytes, $unit = "", $decimals = 2)
@@ -93,7 +97,7 @@ class Bitbucket
     {
         try {
             $date = new DateTime($date, new DateTimeZone('Europe/Stockholm'));
-            $formattedDate = $date->format('Y-m-d H:i:s');
+            $formattedDate = $date->format('Y-M-d H:i');
         } catch (Exception $e) {
             return $e->getMessage();
         }
